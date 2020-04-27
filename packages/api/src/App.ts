@@ -1,4 +1,4 @@
-const Hapi = require("@hapi/hapi");
+import Hapi from "@hapi/hapi";
 const init = async () => {
   const server = Hapi.server({
     port: 5000,
