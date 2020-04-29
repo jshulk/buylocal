@@ -1,8 +1,9 @@
 import Hapi from "@hapi/hapi";
+import Routes from "./Routes";
 const init = async () => {
   const server = Hapi.server({
     port: 5000,
-    host: "localhost"
+    host: "0.0.0.0"
   });
 
   server.route({
@@ -11,6 +12,10 @@ const init = async () => {
     handler: () => {
       return "Hello World";
     }
+  });
+
+  await server.register([{ plugin: Routes }], {
+    routes: { prefix: "/api/v1" }
   });
 
   await server.start();

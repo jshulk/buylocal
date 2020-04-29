@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/App.js",
-    "dev": "nodemon src/App.ts",
-    "build": "tsc -p ."
+    "start": "node ./dist/App.js",
+    "dev": "nodemon ./src/App.ts",
+    "build": "tsc -p .",
+    "watchTS": "tsc -w --preserveWatchOutput "
   },
   "keywords": [],
   "author": "",
