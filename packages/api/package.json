@@ -14,11 +14,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hapi/hapi": "^19.1.1"
+    "@hapi/hapi": "^19.1.1",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.30",
     "@types/hapi__hapi": "^19.0.3",
+    "@types/mysql": "^2.15.10",
     "@types/node": "^13.13.4",
+    "@types/validator": "^13.0.0",
     "nodemon": "^2.0.3",
     "ts-node": "^8.9.1",
     "typescript": "^3.8.3"
