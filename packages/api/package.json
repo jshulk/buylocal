@@ -15,7 +15,11 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^19.1.1",
-    "mysql": "^2.18.1"
+    "db-migrate": "^0.11.10",
+    "db-migrate-mysql": "^2.1.1",
+    "inversify": "^5.0.1",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.30",

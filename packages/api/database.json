@@ -1,0 +1,12 @@
+{
+  "dev": {
+    "driver": "mysql",
+    "user": "root",
+    "password": "password",
+    "host": "localhost",
+    "port": "3306",
+    "database": "twitter",
+    "multipleStatements": true
+  },
+  "sql-file": true
+}
