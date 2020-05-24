@@ -31,14 +31,13 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app/
+      - node_modules:/usr/src/app/node_modules/
     command: npm run dev
     links:
       - "db"
-    environment:
-      APP_ENV: development
-      DB_USER: "root"
-      DB_PASSWORD: "password"
-      DB_HOST: "db"
-      DB_DIALECT: "mysql"
-      DB_NAME: "twitter"
+    env_file:
+      - .env
+
+volumes:
+  node_modules:

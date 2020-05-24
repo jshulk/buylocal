@@ -1,0 +1,7 @@
+{
+  "app": {
+    "bcrypt": {
+      "saltRounds": 10
+    }
+  }
+}
