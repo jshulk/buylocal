@@ -1,10 +1,10 @@
 import { Maybe, ThrowableMaybe } from "./CustomTypes";
 
 interface Dao<T> {
-  get(id: number): ThrowableMaybe<T>;
-  findAll(): ThrowableMaybe<Array<T>>;
+  find(id: number): Promise<T>;
+  findAll(): Promise<Array<T>>;
   save(payload: T): Promise<number>;
-  update(payload: T): ThrowableMaybe<T>;
-  delete(id: number): ThrowableMaybe<string>;
+  update(id: number, payload: T): Promise<T>;
+  delete(id: number): Promise<number>;
 }
 export default Dao;

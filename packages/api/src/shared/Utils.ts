@@ -7,7 +7,7 @@ import {
   PoolConnection
 } from "mysql";
 import { CustomError } from "./CustomTypes";
-type queryCallbackParams = [MysqlError | null, any, FieldInfo[] | undefined];
+type queryCallbackParams = [any, FieldInfo[] | undefined];
 export const promisifiedQuery = (
   connection: Pool | Connection,
   queryObject: QueryOptions
@@ -15,8 +15,8 @@ export const promisifiedQuery = (
   return new Promise((resolve, reject): void => {
     const query = connection.query(queryObject, (error, results, fields) => {
       console.log("sql", query.sql);
-      if (!error) resolve([error, results, fields]);
-      else reject([error, results, fields]);
+      if (!error) resolve([results, fields]);
+      else reject(error);
     });
   });
 };

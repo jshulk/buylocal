@@ -1,11 +1,10 @@
 import Hapi from "@hapi/hapi";
+//import Configue from "configue";
 import Routes from "./Routes";
 import { connectDatabase } from "./Database";
 
-const dbUser = process.env.DB_USER || "twitter_app_user";
-const dbPassword = process.env.DB_PASSWORD;
-const dbName = process.env.DB_NAME || "twitter";
-const dbHost = process.env.DB_HOST || "db";
+//const configue = new Configue();
+console.log("abc");
 
 const init = async () => {
   const server = Hapi.server({
@@ -23,20 +22,8 @@ const init = async () => {
 
   connectDatabase();
 
-  // try {
-  //   const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
-  //     host: dbHost,
-  //     dialect: "mysql"
-  //   });
-  //   await sequelize.authenticate();
-  //   console.log("db connection successfull");
-  // } catch (e) {
-  //   console.log("db connection failed");
-  //   console.log("error", e);
-  // }
-
   await server.register([{ plugin: Routes }], {
-    routes: { prefix: "/api/v1" }
+    routes: { prefix: "/api" }
   });
 
   await server.start();
@@ -44,6 +31,7 @@ const init = async () => {
 };
 
 process.on("unhandledRejection", err => {
+  console.log("unhandledRejection");
   console.log(err);
   process.exit(1);
 });

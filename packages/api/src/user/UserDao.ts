@@ -2,65 +2,188 @@ import UserDtoInterface from "./UserDtoInterface";
 import { promisifiedQuery, promisifiedConnection } from "../shared/Utils";
 import { pool } from "../Database";
 import Dao from "../shared/DaoInterface";
+import bcrypt from "bcrypt";
 import UserDto from "./UserDto";
-import { ThrowableMaybe, DBError } from "../shared/CustomTypes";
+import {
+  ThrowableMaybe,
+  DBError,
+  SQLError,
+  DuplicateRecordError,
+  isMysqlError,
+  RecordNotFoundError,
+} from "../shared/CustomTypes";
 import { injectable } from "inversify";
 import "reflect-metadata";
 import { Connection, PoolConnection } from "mysql";
-
+import { connect } from "http2";
+import { notFound } from "@hapi/boom";
+const saltRounds = process.env.BCRYPT_SALT_ROUNDS
+  ? parseInt(process.env.BCRYPT_SALT_ROUNDS)
+  : 10;
 @injectable()
 export default class UserDao implements Dao<UserDto> {
-  get(id: number): ThrowableMaybe<UserDto> {
-    return new UserDto({});
+  async find(id: number): Promise<UserDto> {
+    console.log("id", id);
+    const [err, connection] = await promisifiedConnection(pool);
+    let conn = <PoolConnection>connection;
+    try {
+      const [fetchResult] = await promisifiedQuery(conn, {
+        sql: "SELECT * from user where id = ?",
+        values: [id],
+      });
+      console.log("fetchResult", fetchResult);
+      if (fetchResult && fetchResult.length) {
+        console.log("fetch results", fetchResult);
+        return UserDto.createForView(fetchResult[0]);
+      } else {
+        throw new RecordNotFoundError("Record not found");
+      }
+    } catch (error) {
+      if (isMysqlError(error)) {
+        throw new DBError("Database Operation Failed");
+      } else throw error;
+    } finally {
+      if (conn) {
+        console.log("finally called");
+        conn.release();
+      }
+    }
   }
-  findAll(): ThrowableMaybe<Array<UserDto> | []> {
-    return [];
+  async findAll(query?: any): Promise<Array<UserDto>> {
+    const [err, connection] = await promisifiedConnection(pool);
+    let conn = <PoolConnection>connection;
+    try {
+      const [fetchResult] = await promisifiedQuery(conn, {
+        sql: "SELECT * from user LIMIT " + query.pageSize,
+      });
+      console.log("fetchResult", fetchResult);
+      return fetchResult.map((row: UserDtoInterface) =>
+        UserDto.createForView(row)
+      );
+    } catch (error) {
+      if (isMysqlError(error)) {
+        throw new DBError("Database Operation Failed");
+      } else throw error;
+    } finally {
+      if (conn) {
+        conn.release();
+        console.log("connection released");
+      }
+    }
   }
   async save(payload: UserDto): Promise<number> {
     const [err, connection] = await promisifiedConnection(pool);
-    if (err) {
-      throw new DBError("Could not get a connection");
-    }
+
     let conn = <PoolConnection>connection;
     try {
-      const [error, results, fields] = await promisifiedQuery(conn, {
+      const hashedPassword = await bcrypt.hash(
+        <string>payload.password,
+        saltRounds
+      );
+      const [insertResult] = await promisifiedQuery(conn, {
         sql: "INSERT INTO user SET ?",
         values: {
           email: payload.email,
           first_name: payload.first_name,
           last_name: payload.last_name,
-          password: payload.password
-        }
+          password: hashedPassword,
+        },
       });
-      if (error) {
-        throw new DBError("Could not create user");
+      const [fetchResult] = await promisifiedQuery(conn, {
+        sql: "SELECT id from user where email = ?",
+        values: [payload.email],
+      });
+      console.log("insertId", insertResult.insertId);
+      if (fetchResult && fetchResult.length) {
+        return fetchResult[0].id;
       } else {
-        // Fetch the record by email id and return the id
-        const [error, results, fields] = await promisifiedQuery(conn, {
-          sql: "SELECT * from user where email = ?",
-          values: [payload.email]
-        });
-        if (error) {
-          throw new DBError("Could not fetch created user");
-        }
-
-        console.log("select result", results);
-        // release the connection
-
-        return results[0].id;
+        throw new DBError("Could not find the created user");
       }
     } catch (e) {
-      throw e;
+      console.log("came to catch");
+      console.log(e);
+      if (e && e.code === SQLError.DUPLICATE_RECORD) {
+        throw new DuplicateRecordError(e.message);
+      } else if (isMysqlError(e)) {
+        throw new DBError("Database Operation Failed");
+      } else throw e;
     } finally {
       if (conn) {
+        console.log("finally called");
         conn.release();
       }
     }
   }
-  update(payload: UserDto): ThrowableMaybe<UserDto> {
-    return new UserDto({});
+  async update(id: number, payload: UserDto): Promise<UserDto> {
+    const [err, connection] = await promisifiedConnection(pool);
+
+    let conn = <PoolConnection>connection;
+    try {
+      let hashedPassword = "";
+      if (payload.password) {
+        hashedPassword = await bcrypt.hash(
+          <string>payload.password,
+          saltRounds
+        );
+      }
+
+      const [updateResult] = await promisifiedQuery(conn, {
+        sql: "UPDATE user SET ? WHERE id = ?",
+        values: [
+          {
+            ...(payload.email ? { email: payload.email } : {}),
+            ...(payload.first_name ? { first_name: payload.first_name } : {}),
+            ...(payload.last_name ? { last_name: payload.last_name } : {}),
+            ...(payload.password ? { password: hashedPassword } : {}),
+          },
+          id,
+        ],
+      });
+
+      const [fetchResult] = await promisifiedQuery(conn, {
+        sql: "select * from user where id = ?",
+        values: [id],
+      });
+
+      if (fetchResult && fetchResult.length) {
+        return UserDto.createForView(fetchResult[0]);
+      } else {
+        throw new RecordNotFoundError("User Not Found", notFound());
+      }
+    } catch (error) {
+      if (isMysqlError(error)) {
+        throw new DBError("Could not update user");
+      } else throw error;
+    } finally {
+      if (conn) {
+        conn.release();
+        console.log("connection released");
+      }
+    }
   }
-  delete(id: number): ThrowableMaybe<string> {
-    return "Success";
+  async delete(id: number): Promise<number> {
+    const [err, connection] = await promisifiedConnection(pool);
+
+    let conn = <PoolConnection>connection;
+    try {
+      const [deleteResult] = await promisifiedQuery(conn, {
+        sql: "DELETE from user where id = ?",
+        values: [id],
+      });
+      if (deleteResult.affectedRows === 0) {
+        throw new RecordNotFoundError("User not found");
+      }
+      return id;
+    } catch (error) {
+      if (isMysqlError(error)) {
+        throw new DBError("Could not delete user");
+      } else throw error;
+    } finally {
+      if (conn) {
+        conn.release();
+        console.log("connection released");
+      }
+    }
+    return 1;
   }
 }
