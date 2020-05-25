@@ -80,7 +80,7 @@ class UserServiceImpl implements UserService {
     }
   };
 
-  update = async (id: number, payload: UserDtoInterface): Promise<UserDto> => {
+  update = async (id: number, payload: UserDto): Promise<UserDto> => {
     try {
       return await this.userDao.update(id, payload);
     } catch (error) {

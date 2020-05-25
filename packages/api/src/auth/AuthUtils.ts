@@ -12,7 +12,7 @@ class AuthUtils {
   constructor(@inject(DEP_TYPES.UserService) userService: UserService) {
     this.userService = userService;
   }
-  async validateUser(decoded: UserDto): Promise<ValidationResponse> {
+  validateUser = async (decoded: UserDto): Promise<ValidationResponse> => {
     console.log("decoded", decoded);
     try {
       const user: UserDto = await this.userService.find(decoded.id);
@@ -21,7 +21,7 @@ class AuthUtils {
       console.log("authentication failed", error);
       return { isValid: false };
     }
-  }
+  };
 }
 
 export default AuthUtils;

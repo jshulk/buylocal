@@ -203,9 +203,10 @@ export default class UserDao implements Dao<UserDto> {
       if (fetchResult && fetchResult.length) {
         const result = await bcrypt.compare(password, fetchResult[0].password);
         if (result) {
+          const fetchedUser: UserDto = UserDto.createForView(fetchResult[0]);
           return UserDto.createForLoginResponse({
             ...fetchResult[0],
-            token: sign(fetchResult[0], SIGNING_KEY),
+            token: sign(JSON.stringify(fetchResult[0]), SIGNING_KEY),
           });
         } else {
           throw new InvalidCredentialsError("Authentication Failed");

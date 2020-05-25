@@ -1,4 +1,4 @@
-import { Controller, Post, RouteConfig } from "../shared/decorators";
+import { Controller, Post } from "../shared/decorators";
 import { loginSchema } from "./AuthSchema";
 import { injectable, inject } from "inversify";
 import UserService from "../user/UserService";
@@ -13,8 +13,7 @@ class AuthController {
     this.userService = userService;
   }
 
-  @Post("/login", { validate: { payload: loginSchema } })
-  @RouteConfig({ auth: false })
+  @Post("/login", { validate: { payload: loginSchema }, auth: false })
   async login(request: Request): Promise<UserDto> {
     try {
       const payload: UserDto = UserDto.createFromRequest(
@@ -25,6 +24,7 @@ class AuthController {
         <string>payload.password
       );
     } catch (error) {
+      console.log("error", error);
       if (error.boomInstance) throw error.boomInstance;
       else throw new CustomError(error.message).boomInstance;
     }
