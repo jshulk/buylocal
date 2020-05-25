@@ -8,5 +8,6 @@ interface UserService {
   findAll(query?: any): Promise<Array<UserDto>>;
   update(id: number, payload: UserDtoInterface): Promise<UserDto>;
   delete(id: number): Promise<number>;
+  authenticate(email: string, password: string): Promise<UserDto>;
 }
 export default UserService;

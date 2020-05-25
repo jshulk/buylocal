@@ -10,7 +10,14 @@ import {
   CustomError,
 } from "../shared/CustomTypes";
 import { awaitWithError } from "../shared/Utils";
-import { Controller, Post, Get, Put, Delete } from "../shared/decorators";
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Delete,
+  RouteConfig,
+} from "../shared/decorators";
 import {
   createUserSchema,
   updateUserSchema,
@@ -26,7 +33,9 @@ class UserController {
   constructor(@inject(DEP_TYPES.UserService) userService: UserService) {
     this.userService = userService;
   }
+
   @Post("/create", { validate: { payload: createUserSchema } })
+  @RouteConfig({ auth: false })
   async create(request: Request): Promise<number | string> {
     try {
       const newUser: UserDto = UserDto.createFromRequest(

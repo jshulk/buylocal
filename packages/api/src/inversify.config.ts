@@ -4,6 +4,8 @@ import UserService from "./user/UserService";
 import UserServiceImpl from "./user/UserServiceImpl";
 import TodosController from "./todos/TodosController";
 import UserController from "./user/UserController";
+import AuthController from "./auth/AuthController";
+import AuthUtils from "./auth/AuthUtils";
 import UserDao from "./user/UserDao";
 
 const myContainer = new Container();
@@ -20,7 +22,12 @@ myContainer
   .to(UserController)
   .inSingletonScope();
 myContainer
-  .bind<UserDao>(DEP_TYPES.UserDao)
-  .to(UserDao)
+  .bind<AuthController>(DEP_TYPES.AuthController)
+  .to(AuthController)
   .inSingletonScope();
+myContainer
+  .bind<AuthUtils>(DEP_TYPES.AuthUtils)
+  .to(AuthUtils)
+  .inSingletonScope();
+myContainer.bind<UserDao>(DEP_TYPES.UserDao).to(UserDao).inSingletonScope();
 export default myContainer;

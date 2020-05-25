@@ -4,6 +4,7 @@ import { pool } from "../Database";
 import Dao from "../shared/DaoInterface";
 import bcrypt from "bcrypt";
 import UserDto from "./UserDto";
+import { sign } from "jsonwebtoken";
 import {
   ThrowableMaybe,
   DBError,
@@ -11,6 +12,8 @@ import {
   DuplicateRecordError,
   isMysqlError,
   RecordNotFoundError,
+  CustomError,
+  InvalidCredentialsError,
 } from "../shared/CustomTypes";
 import { injectable } from "inversify";
 import "reflect-metadata";
@@ -20,6 +23,7 @@ import { notFound } from "@hapi/boom";
 const saltRounds = process.env.BCRYPT_SALT_ROUNDS
   ? parseInt(process.env.BCRYPT_SALT_ROUNDS)
   : 10;
+const SIGNING_KEY: string = process.env.JWT_KEY || "DEFAULT_SIGNING_KEY";
 @injectable()
 export default class UserDao implements Dao<UserDto> {
   async find(id: number): Promise<UserDto> {
@@ -184,6 +188,39 @@ export default class UserDao implements Dao<UserDto> {
         console.log("connection released");
       }
     }
-    return 1;
+  }
+
+  async findByEmailPassword(email: string, password: string): Promise<UserDto> {
+    const [err, connection] = await promisifiedConnection(pool);
+
+    let conn = <PoolConnection>connection;
+    try {
+      const [fetchResult] = await promisifiedQuery(conn, {
+        sql: "SELECT * from user WHERE email = ?",
+        values: [email],
+      });
+      console.log("login", fetchResult);
+      if (fetchResult && fetchResult.length) {
+        const result = await bcrypt.compare(password, fetchResult[0].password);
+        if (result) {
+          return UserDto.createForLoginResponse({
+            ...fetchResult[0],
+            token: sign(fetchResult[0], SIGNING_KEY),
+          });
+        } else {
+          throw new InvalidCredentialsError("Authentication Failed");
+        }
+      } else {
+        throw new RecordNotFoundError("User not found");
+      }
+    } catch (error) {
+      if (isMysqlError(error)) {
+        throw new DBError("Query failed");
+      } else {
+        throw error;
+      }
+    } finally {
+      if (conn) conn.release();
+    }
   }
 }

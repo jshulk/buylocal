@@ -6,6 +6,8 @@ import {
   badGateway,
   notFound,
   badImplementation,
+  boomify,
+  unauthorized,
 } from "@hapi/boom";
 import {
   ThrowableMaybe,
@@ -16,6 +18,9 @@ import {
   DuplicateRecordError,
   RecordNotFoundError,
   UserDeleteException,
+  CustomError,
+  InvalidCredentialsError,
+  AuthenticationError,
 } from "../shared/CustomTypes";
 import UserService from "./UserService";
 import { injectable, inject } from "inversify";
@@ -109,6 +114,28 @@ class UserServiceImpl implements UserService {
         );
       } else throw error;
     }
+  };
+
+  authenticate = async (email: string, password: string): Promise<UserDto> => {
+    try {
+      return await this.userDao.findByEmailPassword(email, password);
+    } catch (error) {
+      if (error instanceof DBError) {
+        throw new CustomError(
+          "Authentication Service Down",
+          badGateway("Authentication Service Down")
+        );
+      } else if (
+        error instanceof RecordNotFoundError ||
+        error instanceof InvalidCredentialsError
+      ) {
+        throw new AuthenticationError(
+          "Credentials are invalid",
+          unauthorized("Credentials are invalid")
+        );
+      } else throw error;
+    }
+    return new UserDto({});
   };
 }
 

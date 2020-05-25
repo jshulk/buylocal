@@ -18,12 +18,16 @@ export class UserCreationException extends CustomError {}
 export class UserFetchException extends CustomError {}
 export class UserDeleteException extends CustomError {}
 export class RecordNotFoundError extends CustomError {}
+export class InvalidCredentialsError extends CustomError {}
+export class AuthenticationError extends CustomError {}
 export type ThrowableMaybe<T> = T | CustomError;
 export const DEP_TYPES = {
   UserService: Symbol("UserService"),
   TodosController: Symbol("TodosController"),
   UserController: Symbol("UserController"),
   UserDao: Symbol("UserDao"),
+  AuthController: Symbol("AuthController"),
+  AuthUtils: Symbol("AuthUtils"),
 };
 export const enum SQLError {
   DUPLICATE_RECORD = "ER_DUP_ENTRY",

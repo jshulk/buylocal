@@ -38,7 +38,6 @@ export function Controller(baseUrl: string) {
     target.prototype.routes = function routes() {
       let self = this;
       const rawRoutes = target.prototype.rawRoutes || [];
-
       return rawRoutes.map((route: any) => {
         return {
           ...route,
@@ -53,11 +52,12 @@ export function Controller(baseUrl: string) {
 
 export function RouteConfig(config: object) {
   return (target: any, key: string, descriptor: any) => {
+    const routeId = target.constructor.name + "." + key;
     setRoute({
       target,
       key,
       options: {
-        config,
+        options: { id: routeId, config },
       },
     });
   };
@@ -65,13 +65,17 @@ export function RouteConfig(config: object) {
 
 export const Route = (method: string, path: string, routeOptions: any) => {
   return (target: any, key: string, descriptor: any) => {
+    const routeId = target.constructor.name + "." + key;
+
     setRoute({
       target,
       key,
       options: {
         method,
         path,
-        options: routeOptions,
+        options: routeOptions
+          ? { ...routeOptions, id: routeId }
+          : { id: routeId },
         handler: descriptor.value,
       },
     });
@@ -138,15 +142,21 @@ const setRoute = ({
   target.rawRoutes = target.rawRoutes || [];
   const routes = target.rawRoutes;
   const routeId = `${target.constructor.name}.${key}`;
-  const found = routes.find((el: any) => el.id === routeId);
+  const found = routes.find((el: any) => el.options.id === routeId);
   const defaultRoute = { options: { id: routeId } };
+  console.log("routeId", routeId);
+  console.log("options", options);
 
   if (!found) {
-    target.rawRoutes.push(extend(defaultRoute, options));
+    target.rawRoutes.push(extend({ ...defaultRoute }, options));
   } else {
     // extend the route
-    extend(found, options);
+
+    const extendedRoute = extend(found, options);
+    console.log("extendedRoute", extendedRoute);
   }
+
+  console.log("postupdate", routes);
 
   return target;
 };
