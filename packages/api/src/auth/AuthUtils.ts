@@ -29,6 +29,7 @@ class AuthUtils {
     request: Request,
     session: object
   ): Promise<ValidateResponse> => {
+    console.log("session", session);
     return { valid: true };
   };
 }

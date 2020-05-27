@@ -14,6 +14,8 @@ const Authentication = {
         name: "twitter-cookie",
         password: COOKIE_KEY,
         isSecure: false,
+        isHttpOnly: false,
+        path: "/api",
       },
       validateFunc: authUtils.validateSession,
     });
