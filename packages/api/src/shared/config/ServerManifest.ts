@@ -3,6 +3,7 @@ import Catbox from "@hapi/catbox";
 import CatboxRedis from "@hapi/catbox-redis";
 import Authentication from "../../plugins/Authentication";
 const { REDIS_HOST, REDIS_PORT } = process.env;
+const API_PREFIX = "/api";
 console.log("REDIS_HOST", REDIS_HOST);
 const ServerManifest = {
   server: {
@@ -24,9 +25,12 @@ const ServerManifest = {
     ],
   },
   register: {
-    plugins: [{ plugin: Authentication }, { plugin: Routes }],
+    plugins: [
+      { plugin: Authentication, options: { prefix: API_PREFIX } },
+      { plugin: Routes },
+    ],
     options: {
-      routes: { prefix: "/api" },
+      routes: { prefix: API_PREFIX },
     },
   },
 };

@@ -7,7 +7,7 @@ const Authentication = {
   name: "authentication",
   version: "1.0",
   once: true,
-  register: async (server: any) => {
+  register: async (server: any, options: any) => {
     await server.register(require("@hapi/cookie"));
     server.auth.strategy("session", "cookie", {
       cookie: {
@@ -15,7 +15,7 @@ const Authentication = {
         password: COOKIE_KEY,
         isSecure: false,
         isHttpOnly: false,
-        path: "/api",
+        path: options.prefix || "/api",
       },
       validateFunc: authUtils.validateSession,
     });
