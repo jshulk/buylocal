@@ -28,6 +28,7 @@ export const DEP_TYPES = {
   UserDao: Symbol("UserDao"),
   AuthController: Symbol("AuthController"),
   AuthUtils: Symbol("AuthUtils"),
+  AuthService: Symbol("AuthService"),
 };
 export const enum SQLError {
   DUPLICATE_RECORD = "ER_DUP_ENTRY",

@@ -1,5 +1,10 @@
 import UserDtoInterface from "./UserDtoInterface";
-import { promisifiedQuery, promisifiedConnection } from "../shared/Utils";
+import {
+  promisifiedQuery,
+  promisifiedConnection,
+  awaitWithError,
+  promisifiedSign,
+} from "../shared/Utils";
 import { pool } from "../Database";
 import Dao from "../shared/DaoInterface";
 import bcrypt from "bcrypt";
@@ -18,12 +23,11 @@ import {
 import { injectable } from "inversify";
 import "reflect-metadata";
 import { Connection, PoolConnection } from "mysql";
-import { connect } from "http2";
 import { notFound } from "@hapi/boom";
 const saltRounds = process.env.BCRYPT_SALT_ROUNDS
   ? parseInt(process.env.BCRYPT_SALT_ROUNDS)
   : 10;
-const SIGNING_KEY: string = process.env.JWT_KEY || "DEFAULT_SIGNING_KEY";
+
 @injectable()
 export default class UserDao implements Dao<UserDto> {
   async find(id: number): Promise<UserDto> {
@@ -190,7 +194,7 @@ export default class UserDao implements Dao<UserDto> {
     }
   }
 
-  async findByEmailPassword(email: string, password: string): Promise<UserDto> {
+  async findByEmail(email: string): Promise<UserDto> {
     const [err, connection] = await promisifiedConnection(pool);
 
     let conn = <PoolConnection>connection;
@@ -201,16 +205,7 @@ export default class UserDao implements Dao<UserDto> {
       });
       console.log("login", fetchResult);
       if (fetchResult && fetchResult.length) {
-        const result = await bcrypt.compare(password, fetchResult[0].password);
-        if (result) {
-          const fetchedUser: UserDto = UserDto.createForView(fetchResult[0]);
-          return UserDto.createForLoginResponse({
-            ...fetchResult[0],
-            token: sign(JSON.stringify(fetchResult[0]), SIGNING_KEY),
-          });
-        } else {
-          throw new InvalidCredentialsError("Authentication Failed");
-        }
+        return new UserDto(fetchResult[0]);
       } else {
         throw new RecordNotFoundError("User not found");
       }

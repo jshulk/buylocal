@@ -16,13 +16,6 @@ services:
     ports:
       - 3306:3306
 
-  adminer:
-    container_name: php_myadmin
-    image: adminer:4.7
-    restart: always
-    ports:
-      - 8002:8080
-
   web:
     build:
       context: .

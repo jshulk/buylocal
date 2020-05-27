@@ -115,28 +115,6 @@ class UserServiceImpl implements UserService {
       } else throw error;
     }
   };
-
-  authenticate = async (email: string, password: string): Promise<UserDto> => {
-    try {
-      return await this.userDao.findByEmailPassword(email, password);
-    } catch (error) {
-      if (error instanceof DBError) {
-        throw new CustomError(
-          "Authentication Service Down",
-          badGateway("Authentication Service Down")
-        );
-      } else if (
-        error instanceof RecordNotFoundError ||
-        error instanceof InvalidCredentialsError
-      ) {
-        throw new AuthenticationError(
-          "Credentials are invalid",
-          unauthorized("Credentials are invalid")
-        );
-      } else throw error;
-    }
-    return new UserDto({});
-  };
 }
 
 export default UserServiceImpl;

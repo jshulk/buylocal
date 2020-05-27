@@ -1,25 +1,27 @@
 import mysql from "mysql";
 import { promisifiedQuery } from "./shared/Utils";
 
-const dbPoolSize = process.env.DB_POOL_SIZE
-  ? parseInt(process.env.DB_POOL_SIZE)
-  : 10;
-const dbHost = process.env.DB_HOST;
-const dbUser = process.env.DB_USER;
-const dbPassword = process.env.DB_PASSWORD;
-const dbName = process.env.DB_NAME;
+const {
+  DB_POOL_SIZE: dbPoolSize = 10,
+  DB_HOST: dbHost = "localhost",
+  DB_USER: dbUser,
+  DB_PASSWORD: dbPassword,
+  DB_NAME: dbName,
+} = process.env;
+console.log("dbUser", dbUser);
+console.log("dbPassword", dbPassword);
 export const pool = mysql.createPool({
-  connectionLimit: dbPoolSize,
+  connectionLimit: +dbPoolSize,
   host: dbHost,
   user: dbUser,
   password: dbPassword,
-  database: dbName
+  database: dbName,
 });
 
 export const connectDatabase = async () => {
   try {
     const [results, fields] = await promisifiedQuery(pool, {
-      sql: "SELECT 1 + 1 as solution"
+      sql: "SELECT 1 + 1 as solution",
     });
     console.log(`The solution is: `, results[0].solution);
   } catch (e) {

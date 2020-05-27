@@ -9,14 +9,13 @@ class UserDto implements UserDtoInterface {
   first_name?: string;
   last_name?: string;
   password?: string;
-  token?: string;
+
   constructor(props: UserDtoInterface) {
     this.id = props.id;
     this.email = props.email;
     this.first_name = props.first_name;
     this.last_name = props.last_name;
     this.password = props.password;
-    this.token = props.token;
   }
   static createFromRequest(payload: UserDtoInterface): UserDto | never {
     console.log("request payload", payload);
@@ -41,17 +40,25 @@ class UserDto implements UserDtoInterface {
   }
 
   static createForLoginResponse(payload: UserDtoInterface): UserDto {
+    console.log("payload", payload);
     try {
       return new UserDto({
         id: payload.id,
         email: payload.email,
         first_name: payload.first_name,
         last_name: payload.last_name,
-        token: payload.token,
       });
     } catch (error) {
       throw new CustomError("Invalid user object");
     }
+  }
+  public toPlainObject() {
+    return {
+      id: this.id,
+      email: this.email,
+      first_name: this.first_name,
+      last_name: this.last_name,
+    };
   }
 }
 export default UserDto;

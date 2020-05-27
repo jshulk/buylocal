@@ -2,6 +2,8 @@ import UserService from "../user/UserService";
 import { inject, injectable } from "inversify";
 import { DEP_TYPES } from "../shared/CustomTypes";
 import UserDto from "../user/UserDto";
+import { Request } from "@hapi/hapi";
+import { ValidateResponse } from "@hapi/cookie";
 
 interface ValidationResponse {
   isValid: boolean;
@@ -21,6 +23,13 @@ class AuthUtils {
       console.log("authentication failed", error);
       return { isValid: false };
     }
+  };
+
+  validateSession = async (
+    request: Request,
+    session: object
+  ): Promise<ValidateResponse> => {
+    return { valid: true };
   };
 }
 

@@ -4,9 +4,11 @@ import {
   MysqlError,
   FieldInfo,
   Connection,
-  PoolConnection
+  PoolConnection,
 } from "mysql";
 import { CustomError } from "./CustomTypes";
+import { Secret, SignOptions } from "jsonwebtoken";
+import { sign } from "jsonwebtoken";
 type queryCallbackParams = [any, FieldInfo[] | undefined];
 export const promisifiedQuery = (
   connection: Pool | Connection,
@@ -33,5 +35,18 @@ export const promisifiedConnection = (
 };
 
 export const awaitWithError = (promise: Promise<any>): Promise<any> => {
-  return promise.then(res => [null, res]).catch(err => [err, null]);
+  return promise.then((res) => [null, res]).catch((err) => [err, null]);
+};
+
+export const promisifiedSign = (
+  payload: string | object | Buffer,
+  key: Secret,
+  options: SignOptions
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    sign(payload, key, options, (err, token) => {
+      if (err) reject(err);
+      else resolve(token);
+    });
+  });
 };

@@ -39,11 +39,12 @@ export function Controller(baseUrl: string) {
       let self = this;
       const rawRoutes = target.prototype.rawRoutes || [];
       return rawRoutes.map((route: any) => {
-        return {
+        const updatedRoute = {
           ...route,
           path: `${baseUrl}${route.path}`,
-          handler: route.handler.bind(self),
         };
+        updatedRoute.options.bind = self;
+        return updatedRoute;
       });
     };
     return target;

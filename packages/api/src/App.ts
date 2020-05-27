@@ -1,18 +1,17 @@
+require("dotenv").config();
 import Hapi from "@hapi/hapi";
-//import Configue from "configue";
-import Routes from "./Routes";
+import Glue from "@hapi/glue";
 import { connectDatabase } from "./Database";
 import container from "./inversify.config";
 import AuthUtils from "./auth/AuthUtils";
 import { DEP_TYPES } from "./shared/CustomTypes";
+import ServerManifest from "./shared/config/ServerManifest";
+
 //const configue = new Configue();
 
-const authUtils: AuthUtils = container.get<AuthUtils>(DEP_TYPES.AuthUtils);
+const options = { relativeTo: __dirname };
 const init = async () => {
-  const server = Hapi.server({
-    port: 5000,
-    host: "0.0.0.0",
-  });
+  const server = await Glue.compose(ServerManifest, options);
 
   server.route({
     method: "GET",
@@ -24,17 +23,15 @@ const init = async () => {
 
   connectDatabase();
 
-  await server.register(
-    [{ plugin: Routes }, { plugin: require("hapi-auth-jwt2") }],
-    {
-      routes: { prefix: "/api" },
-    }
-  );
-  server.auth.strategy("jwt", "jwt", {
-    key: process.env.JWT_KEY,
-    validate: authUtils.validateUser,
-  });
-  server.auth.default("jwt");
+  // server.auth.strategy("jwt", "jwt", {
+  //   key: process.env.JWT_KEY,
+  //   validate: authUtils.validateUser,
+  //   verifyingOptions: {
+  //     algorithms: ["HS256"],
+  //     maxAge: TOKEN_AGE,
+  //   },
+  // });
+  // server.auth.default("jwt");
 
   await server.start();
   console.log("Server is running on %s", server.info.uri);

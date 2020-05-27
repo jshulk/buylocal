@@ -1,10 +1,10 @@
-import UserController from "./user/UserController";
-import myContainer from "./inversify.config";
-import { DEP_TYPES } from "./shared/CustomTypes";
-import TodosController from "./todos/TodosController";
-import AuthController from "./auth/AuthController";
-import UserService from "./user/UserService";
-import { createUserSchema } from "./user/UserSchemas";
+import UserController from "../user/UserController";
+import myContainer from "../inversify.config";
+import { DEP_TYPES } from "../shared/CustomTypes";
+import TodosController from "../todos/TodosController";
+import AuthController from "../auth/AuthController";
+import UserService from "../user/UserService";
+import { createUserSchema } from "../user/UserSchemas";
 
 const todosController = myContainer.get<TodosController>(
   DEP_TYPES.TodosController
@@ -22,6 +22,7 @@ console.log("auth routes", authController.routes());
 const Routes = {
   name: "Routes",
   version: "1.0",
+  once: true,
   register: async (server: any) => {
     server.route([
       {
@@ -34,6 +35,7 @@ const Routes = {
 
     server.route(userController.routes());
     server.route(authController.routes());
+    //server.dependency("@hapi/cookie");
   },
 };
 export default Routes;

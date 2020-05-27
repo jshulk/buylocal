@@ -6,12 +6,20 @@ services:
     container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: "password"
-      MYSQL_USER: "dbUser"
-      MYSQL_PASSWORD: "password"
-      MYSQL_DATABASE: "twitter"
+    env_file:
+      - .db.env
     volumes:
       - ./db-data:/var/lib/mysql
     ports:
       - 3306:3306
+  cache:
+    image: redis:6.0.3
+    container_name: cache
+    volumes:
+      - ./cache-data:/var/lib/redis
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    env_file:
+      - .db.env
+    ports:
+      - 6379:6379
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]

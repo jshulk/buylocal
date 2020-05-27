@@ -6,7 +6,9 @@ import TodosController from "./todos/TodosController";
 import UserController from "./user/UserController";
 import AuthController from "./auth/AuthController";
 import AuthUtils from "./auth/AuthUtils";
+import AuthService from "./auth/AuthServiceImpl";
 import UserDao from "./user/UserDao";
+import AuthServiceImpl from "./auth/AuthServiceImpl";
 
 const myContainer = new Container();
 myContainer
@@ -28,6 +30,11 @@ myContainer
 myContainer
   .bind<AuthUtils>(DEP_TYPES.AuthUtils)
   .to(AuthUtils)
+  .inSingletonScope();
+
+myContainer
+  .bind<AuthService>(DEP_TYPES.AuthService)
+  .to(AuthServiceImpl)
   .inSingletonScope();
 myContainer.bind<UserDao>(DEP_TYPES.UserDao).to(UserDao).inSingletonScope();
 export default myContainer;
