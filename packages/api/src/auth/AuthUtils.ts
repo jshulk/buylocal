@@ -1,9 +1,10 @@
 import UserService from "../user/UserService";
 import { inject, injectable } from "inversify";
-import { DEP_TYPES } from "../shared/CustomTypes";
+import { DEP_TYPES, YarRequest } from "../shared/CustomTypes";
 import UserDto from "../user/UserDto";
 import { Request } from "@hapi/hapi";
 import { ValidateResponse } from "@hapi/cookie";
+import { YAR_AUTH_KEY } from "../shared/constants/AuthConstants";
 
 interface ValidationResponse {
   isValid: boolean;
@@ -26,11 +27,13 @@ class AuthUtils {
   };
 
   validateSession = async (
-    request: Request,
+    request: YarRequest,
     session: object
   ): Promise<ValidateResponse> => {
+    const user = request.yar.get(YAR_AUTH_KEY);
     console.log("session", session);
-    return { valid: true };
+    console.log("user", user);
+    return { valid: user ? true : false };
   };
 }
 

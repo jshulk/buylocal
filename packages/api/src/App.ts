@@ -6,18 +6,24 @@ import container from "./inversify.config";
 import AuthUtils from "./auth/AuthUtils";
 import { DEP_TYPES } from "./shared/CustomTypes";
 import ServerManifest from "./shared/config/ServerManifest";
-
 //const configue = new Configue();
 
 const options = { relativeTo: __dirname };
 const init = async () => {
   const server = await Glue.compose(ServerManifest, options);
-
+  server.views({
+    engines: { tsx: require("hapi-react-views") },
+    compileOptions: {
+      renderMethod: "renderToString",
+    },
+    relativeTo: __dirname,
+    path: "views",
+  });
   server.route({
     method: "GET",
     path: "/",
-    handler: () => {
-      return "Hello World";
+    handler: (request, h) => {
+      return h.view("Home");
     },
   });
 

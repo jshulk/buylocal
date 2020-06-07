@@ -50,7 +50,6 @@ class UserController {
   @Get("/{id?}")
   async get(request: Request): Promise<UserDto | Array<UserDto>> {
     try {
-      console.log("request", request);
       return request.params.id
         ? await this.userService.find(request.params.id)
         : await this.userService.findAll({ pageSize: 10 });

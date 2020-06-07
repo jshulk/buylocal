@@ -1,7 +1,13 @@
 import { Boom, forbidden, badImplementation } from "@hapi/boom";
 import { MysqlError } from "mysql";
-
+import { Request } from "@hapi/hapi";
 export type Maybe<T> = T | void;
+export interface YarRequest extends Request {
+  yar: any;
+}
+export interface DynamicObject {
+  [key: string]: any;
+}
 export class CustomError extends Error {
   boomInstance?: Boom<any>;
   constructor(message: string, boomInstance?: Boom<any>) {
@@ -37,3 +43,7 @@ export const enum SQLError {
 export const isMysqlError = (object: any): object is MysqlError => {
   return object.sqlMessage !== undefined;
 };
+export interface AuthSchemeOptions {
+  cookie: { name: string };
+  validateFunc?: Function;
+}
