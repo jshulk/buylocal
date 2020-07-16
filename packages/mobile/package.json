@@ -1,0 +1,26 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "description": "mobile",
+  "author": "jshulk <vijaytyagi.vt@gmail.com>",
+  "homepage": "https://github.com/jshulk/buylocal#readme",
+  "license": "ISC",
+  "main": "lib/mobile.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jshulk/buylocal.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/jshulk/buylocal/issues"
+  }
+}
