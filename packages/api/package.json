@@ -1,5 +1,5 @@
 {
-  "name": "ts_api_starter",
+  "name": "buy_local_api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -69,6 +69,7 @@
     "@zeit/ncc": "^0.22.3",
     "babel-loader": "^8.1.0",
     "chokidar": "^3.4.0",
+    "lerna": "^3.22.1",
     "nodemon": "^2.0.4",
     "source-map-loader": "^1.0.0",
     "ts-loader": "^7.0.5",
